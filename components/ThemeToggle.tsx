@@ -3,38 +3,36 @@ import { useEffect, useState } from 'react'
 
 export default function ThemeToggle() {
   const [dark, setDark] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    // 초기 테마 설정
-    const saved = localStorage.getItem('theme')
-    if (
-      saved === 'dark' ||
-      (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    ) {
-      document.documentElement.classList.add('dark')
-      setDark(true)
-    } else {
-      document.documentElement.classList.remove('dark')
-      setDark(false)
-    }
+    setIsMounted(true)
+    // 초기 테마 설정 - 클라이언트 사이드에서만 실행
+    const isDarkMode = document.documentElement.classList.contains('dark')
+    setDark(isDarkMode)
   }, [])
 
   function toggleTheme() {
-    if (dark) {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-      setDark(false)
-    } else {
+    const newDarkValue = !dark
+    setDark(newDarkValue)
+
+    if (newDarkValue) {
       document.documentElement.classList.add('dark')
       localStorage.setItem('theme', 'dark')
-      setDark(true)
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
     }
   }
+
+  // 마운트되기 전에는 아무것도 렌더링하지 않음 (hydration 불일치 방지)
+  if (!isMounted) return null
 
   return (
     <button
       onClick={toggleTheme}
       aria-label="다크모드 토글"
+      suppressHydrationWarning
       className="bg-navy-100 dark:bg-navy-800 hover:bg-navy-200 dark:hover:bg-navy-700 ml-4 rounded-full p-2 transition-colors">
       {dark ? (
         // 달 아이콘
