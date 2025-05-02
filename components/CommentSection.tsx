@@ -25,8 +25,8 @@ export default function CommentSection({ postId }: { postId: string }) {
       if (!res.ok) throw new Error('댓글을 불러오지 못했습니다.')
       const data = await res.json()
       setComments(data)
-    } catch (e: any) {
-      setError(e.message)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
     } finally {
       setFetching(false)
     }
@@ -51,8 +51,8 @@ export default function CommentSection({ postId }: { postId: string }) {
       if (!res.ok) throw new Error('댓글 작성에 실패했습니다.')
       setContent('')
       fetchComments()
-    } catch (e: any) {
-      setError(e.message)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
@@ -66,8 +66,8 @@ export default function CommentSection({ postId }: { postId: string }) {
       const res = await fetch(`/api/comments/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('댓글 삭제에 실패했습니다.')
       fetchComments()
-    } catch (e: any) {
-      setError(e.message)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }

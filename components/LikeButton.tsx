@@ -19,8 +19,8 @@ export default function LikeButton({ postId }: { postId: string }) {
       const data = await res.json()
       setCount(data.count)
       setLiked(data.liked)
-    } catch (e: any) {
-      setError(e.message)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
     }
   }
 
@@ -53,8 +53,8 @@ export default function LikeButton({ postId }: { postId: string }) {
         if (!res.ok) throw new Error('좋아요에 실패했습니다.')
       }
       fetchLike()
-    } catch (e: any) {
-      setError(e.message)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
