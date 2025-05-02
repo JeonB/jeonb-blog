@@ -1,60 +1,62 @@
-"use client";
-import { useSession, signIn } from "next-auth/react";
-import { useEffect, useState } from "react";
+'use client'
+import { useSession, signIn } from 'next-auth/react'
+import { useEffect, useState } from 'react'
 
 export default function LikeButton({ postId }: { postId: string }) {
-  const { data: session } = useSession();
-  const [count, setCount] = useState(0);
-  const [liked, setLiked] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession()
+  const [count, setCount] = useState(0)
+  const [liked, setLiked] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function fetchLike() {
-    setError(null);
+    setError(null)
     try {
-      const res = await fetch(`/api/likes?postId=${postId}${session?.user?.email ? `&userId=${session.user.email}` : ""}`);
-      if (!res.ok) throw new Error("좋아요 정보를 불러오지 못했습니다.");
-      const data = await res.json();
-      setCount(data.count);
-      setLiked(data.liked);
+      const res = await fetch(
+        `/api/likes?postId=${postId}${session?.user?.email ? `&userId=${session.user.email}` : ''}`,
+      )
+      if (!res.ok) throw new Error('좋아요 정보를 불러오지 못했습니다.')
+      const data = await res.json()
+      setCount(data.count)
+      setLiked(data.liked)
     } catch (e: any) {
-      setError(e.message);
+      setError(e.message)
     }
   }
 
   useEffect(() => {
-    fetchLike();
+    fetchLike()
     // eslint-disable-next-line
-  }, [postId, session?.user?.email]);
+  }, [postId, session?.user?.email])
 
   async function handleLike() {
     if (!session) {
-      signIn();
-      return;
+      signIn()
+      return
     }
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
       if (liked) {
-        const res = await fetch("/api/likes", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('/api/likes', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ postId }),
-        });
-        if (!res.ok) throw new Error("좋아요 취소에 실패했습니다.");
+        })
+        if (!res.ok) throw new Error('좋아요 취소에 실패했습니다.')
       } else {
-        const res = await fetch("/api/likes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch('/api/likes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ postId }),
-        });
-        if (!res.ok) throw new Error("좋아요에 실패했습니다.");
+        })
+        if (!res.ok) throw new Error('좋아요에 실패했습니다.')
       }
-      fetchLike();
+      fetchLike()
     } catch (e: any) {
-      setError(e.message);
+      setError(e.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -63,16 +65,14 @@ export default function LikeButton({ postId }: { postId: string }) {
       <button
         onClick={handleLike}
         disabled={loading}
-        className={`flex items-center gap-1 select-none ${liked ? "text-primary" : "text-navy-400 dark:text-navy-200"} transition-colors`}
-        aria-label={liked ? "좋아요 취소" : "좋아요"}
-      >
+        className={`flex items-center gap-1 select-none ${liked ? 'text-primary' : 'text-navy-400 dark:text-navy-200'} transition-colors`}
+        aria-label={liked ? '좋아요 취소' : '좋아요'}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          fill={liked ? "currentColor" : "none"}
+          fill={liked ? 'currentColor' : 'none'}
           viewBox="0 0 24 24"
           stroke="currentColor"
-          className={`w-6 h-6 ${liked ? "scale-110" : ""} transition-transform`}
-        >
+          className={`h-6 w-6 ${liked ? 'scale-110' : ''} transition-transform`}>
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -81,9 +81,9 @@ export default function LikeButton({ postId }: { postId: string }) {
           />
         </svg>
         <span className="text-sm font-medium">{count}</span>
-        {loading && <span className="ml-1 text-xs animate-pulse">...</span>}
+        {loading && <span className="ml-1 animate-pulse text-xs">...</span>}
       </button>
-      {error && <div className="text-xs text-red-500 mt-1">{error}</div>}
+      {error && <div className="mt-1 text-xs text-red-500">{error}</div>}
     </div>
-  );
+  )
 }

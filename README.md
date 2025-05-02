@@ -38,12 +38,15 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## 인증(로그인) 기능 세팅
 
 ### 1. 라이브러리 설치 (pnpm)
+
 ```bash
 pnpm add next-auth @next-auth/mongodb-adapter mongodb
 ```
 
 ### 2. 환경변수 설정
+
 `.env.local` 파일에 아래 항목을 추가하세요:
+
 ```
 MONGODB_URI=your_mongodb_connection_string
 NEXTAUTH_URL=http://localhost:3000
@@ -53,4 +56,5 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
 ### 3. 인증 라우트 파일 생성
+
 `app/api/auth/[...nextauth]/route.ts` 파일을 생성하고, NextAuth.js + MongoDB Adapter로 인증을 구현하세요.
