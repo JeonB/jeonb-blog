@@ -1,102 +1,61 @@
 import Image from "next/image";
+import { useSession, signIn, signOut } from "next-auth/react";
+import LikeButton from "../components/LikeButton";
+import { getAllPosts } from "../lib/post";
+import ThemeToggle from "../components/ThemeToggle";
 
-export default function Home() {
+export default async function Home() {
+  // 클라이언트 컴포넌트에서만 인증 상태 사용
+  // "use client"; // (Next.js 13 app 디렉토리에서 상위에서 선언 필요시 추가)
+  const { data: session, status } = typeof window !== "undefined" ? require("next-auth/react").useSession() : { data: null, status: "loading" };
+
+  const posts = await getAllPosts();
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen flex flex-col bg-navy-50 dark:bg-navy-900 text-black dark:text-white font-[family-name:var(--font-geist-sans)]">
+      {/* 네비게이션 바 */}
+      <header className="w-full border-b border-navy-100 dark:border-navy-800 py-4 px-6 flex items-center justify-between bg-white/80 dark:bg-navy-900 backdrop-blur sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <Image src="/next.svg" alt="로고" width={32} height={32} />
+          <span className="font-bold text-lg tracking-tight">jeonb.log</span>
+        </div>
+        <nav className="flex gap-6 text-sm items-center">
+          <a href="#" className="hover:underline">Home</a>
+          <a href="#" className="hover:underline">Posts</a>
+          <a href="#" className="hover:underline">About</a>
+          {/* 로그인/로그아웃 버튼 */}
+          {status === "loading" ? null : session ? (
+            <button onClick={() => signOut()} className="ml-4 px-3 py-1 rounded bg-navy-100 dark:bg-navy-700 hover:bg-navy-200 dark:hover:bg-navy-600">로그아웃</button>
+          ) : (
+            <button onClick={() => signIn()} className="ml-4 px-3 py-1 rounded bg-primary text-white hover:bg-navy-700">로그인</button>
+          )}
+          <ThemeToggle />
+        </nav>
+      </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* 메인 콘텐츠 */}
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-12">
+        <h1 className="text-3xl font-bold mb-8 text-primary dark:text-navy-100">최신 포스트</h1>
+        <div className="grid gap-6">
+          {posts.length === 0 && <div className="text-navy-400">아직 포스트가 없습니다.</div>}
+          {posts.map((post) => (
+            <article key={post.slug} className="rounded-lg border border-navy-100 dark:border-navy-800 p-6 bg-white dark:bg-navy-800 shadow-sm transition hover:shadow-md flex flex-col gap-2">
+              <a href={`/blog/${post.slug}`} className="text-xl font-semibold mb-1 hover:underline text-primary dark:text-navy-100">{post.title}</a>
+              <div className="text-xs text-navy-500 dark:text-navy-200 mb-2">
+                by {post.author} · {new Date(post.createdAt).toLocaleDateString()}
+              </div>
+              <div className="text-navy-800 dark:text-navy-100 mb-2 line-clamp-2">{post.content.slice(0, 100)}...</div>
+              <div className="flex items-center gap-2 mt-auto">
+                <LikeButton postId={post.slug} />
+              </div>
+            </article>
+          ))}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* 푸터 */}
+      <footer className="w-full py-6 border-t border-navy-100 dark:border-navy-800 text-center text-xs text-navy-400 dark:text-navy-200 bg-white/80 dark:bg-navy-900 backdrop-blur">
+        © 2024 jeonb.log. All rights reserved.
       </footer>
     </div>
   );
