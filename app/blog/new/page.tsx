@@ -2,6 +2,15 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+import '@uiw/react-md-editor/markdown-editor.css'
+import '@uiw/react-markdown-preview/markdown.css'
+
+// 마크다운 에디터를 클라이언트 사이드에서만 렌더링하도록 설정
+const MDEditor = dynamic(
+  () => import('@uiw/react-md-editor').then(mod => mod.default),
+  { ssr: false },
+)
 
 export default function NewPost() {
   const router = useRouter()
@@ -52,8 +61,15 @@ export default function NewPost() {
     }))
   }
 
+  const handleEditorChange = (value?: string) => {
+    setFormData(prev => ({
+      ...prev,
+      content: value || '',
+    }))
+  }
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto max-w-4xl px-4 py-8" data-color-mode="light">
       <h1 className="mb-8 text-3xl font-bold">Write New Post</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -81,16 +97,15 @@ export default function NewPost() {
             className="mb-2 block text-sm font-medium text-gray-700">
             Content
           </label>
-          <textarea
-            id="content"
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            required
-            rows={10}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-            placeholder="Write your post content here..."
-          />
+          <div className="w-full">
+            <MDEditor
+              value={formData.content}
+              onChange={handleEditorChange}
+              height={400}
+              preview="edit"
+              className="w-full"
+            />
+          </div>
         </div>
 
         <div>
