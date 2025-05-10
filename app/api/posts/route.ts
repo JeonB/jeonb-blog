@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth'
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession()
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { title, content, tags, images } = body
 
@@ -11,6 +17,11 @@ export async function POST(request: Request) {
         title,
         content,
         tags,
+        author: {
+          connect: {
+            email: session.user.email,
+          },
+        },
         images: {
           create: images?.map((url: string) => ({ url })) || [],
         },

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import ReactCrop, { type Crop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
+import Image from 'next/image'
 
 interface ImageEditorProps {
   imageUrl: string
@@ -24,21 +25,17 @@ export default function ImageEditor({
   })
   const imageRef = useRef<HTMLImageElement>(null)
 
-  const getCroppedImg = async () => {
+  const handleCropComplete = () => {
     if (!imageRef.current) return
 
     const canvas = document.createElement('canvas')
     const scaleX = imageRef.current.naturalWidth / imageRef.current.width
     const scaleY = imageRef.current.naturalHeight / imageRef.current.height
-    const pixelRatio = window.devicePixelRatio
-    canvas.width = crop.width * scaleX
-    canvas.height = crop.height * scaleY
-
+    canvas.width = crop.width
+    canvas.height = crop.height
     const ctx = canvas.getContext('2d')
-    if (!ctx) return
 
-    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
-    ctx.imageSmoothingQuality = 'high'
+    if (!ctx) return
 
     ctx.drawImage(
       imageRef.current,
@@ -48,8 +45,8 @@ export default function ImageEditor({
       crop.height * scaleY,
       0,
       0,
-      crop.width * scaleX,
-      crop.height * scaleY,
+      crop.width,
+      crop.height,
     )
 
     const croppedImageUrl = canvas.toDataURL('image/jpeg')
@@ -66,24 +63,26 @@ export default function ImageEditor({
             onChange={c => setCrop(c)}
             aspect={16 / 9}
             className="max-h-[60vh] w-full">
-            <img
-              ref={imageRef}
-              src={imageUrl}
-              alt="Crop preview"
-              className="max-h-[60vh] w-full object-contain"
-            />
+            <div className="relative">
+              <img
+                ref={imageRef}
+                src={imageUrl}
+                alt="Crop preview"
+                className="max-h-[60vh] w-full object-contain"
+              />
+            </div>
           </ReactCrop>
         </div>
         <div className="flex justify-end space-x-4">
           <button
             onClick={onCancel}
-            className="rounded-md bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200">
+            className="rounded-md bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:outline-none">
             Cancel
           </button>
           <button
-            onClick={getCroppedImg}
-            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-            Apply Crop
+            onClick={handleCropComplete}
+            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            Apply
           </button>
         </div>
       </div>
