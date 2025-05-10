@@ -2,6 +2,7 @@
 import { useSession, signIn, signOut } from 'next-auth/react'
 import ThemeToggle from './ThemeToggle'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function ClientHeader() {
   const { data: session, status } = useSession()
@@ -13,31 +14,31 @@ export default function ClientHeader() {
         <span className="text-lg font-bold tracking-tight">jeonb.log</span>
       </div>
       <nav className="flex items-center gap-6 text-sm">
-        <a href="#" className="hover:underline">
-          Home
-        </a>
-        <a href="#" className="hover:underline">
-          Posts
-        </a>
-        <a href="#" className="hover:underline">
+        <Link href="/blog" className="hover:underline">
+          Blog
+        </Link>
+        <Link href="/projects" className="hover:underline">
+          Projects
+        </Link>
+        <Link href="/about" className="hover:underline">
           About
-        </a>
+        </Link>
         {/* 로그인/로그아웃 버튼 */}
         {status === 'loading' ? null : session ? (
           <button
             onClick={() => signOut()}
-            className="bg-navy-100 dark:bg-navy-700 hover:bg-navy-200 dark:hover:bg-navy-600 ml-4 rounded px-3 py-1">
-            로그아웃
+            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+            Sign Out
           </button>
         ) : (
           <button
             onClick={() => signIn()}
-            className="bg-primary hover:bg-navy-700 ml-4 rounded px-3 py-1 text-white">
-            로그인
+            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+            Sign In
           </button>
         )}
-        <ThemeToggle />
       </nav>
+      <ThemeToggle />
     </header>
   )
 }

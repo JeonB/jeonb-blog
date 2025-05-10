@@ -1,6 +1,7 @@
 import LikeButton from '../components/LikeButton'
 import { getAllPosts } from '../lib/post'
 import ClientHeader from '../components/ClientHeader'
+import Link from 'next/link'
 
 export default async function Home() {
   const posts = await getAllPosts()
@@ -22,11 +23,11 @@ export default async function Home() {
             <article
               key={post.slug}
               className="border-navy-100 dark:border-navy-800 dark:bg-navy-800 flex flex-col gap-2 rounded-lg border bg-white p-6 shadow-sm transition hover:shadow-md">
-              <a
+              <Link
                 href={`/blog/${post.slug}`}
                 className="text-primary dark:text-navy-100 mb-1 text-xl font-semibold hover:underline">
                 {post.title}
-              </a>
+              </Link>
               <div className="text-navy-500 dark:text-navy-200 mb-2 text-xs">
                 by {post.author} ·{' '}
                 {new Date(post.createdAt).toLocaleDateString()}

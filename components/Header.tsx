@@ -2,6 +2,7 @@
 import { useSession, signIn, signOut } from 'next-auth/react'
 import ThemeToggle from './ThemeToggle'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function Header() {
   const { data: session, status } = useSession()
@@ -12,15 +13,15 @@ export default function Header() {
         <span className="text-lg font-bold tracking-tight">jeonb.log</span>
       </div>
       <nav className="flex items-center gap-6 text-sm">
-        <a href="#" className="hover:underline">
-          Home
-        </a>
-        <a href="#" className="hover:underline">
-          Posts
-        </a>
-        <a href="#" className="hover:underline">
+        <Link href="/blog" className="hover:underline">
+          Blog
+        </Link>
+        <Link href="/projects" className="hover:underline">
+          Projects
+        </Link>
+        <Link href="/about" className="hover:underline">
           About
-        </a>
+        </Link>
         {/* 로그인/로그아웃 버튼 */}
         {status === 'loading' ? null : session ? (
           <button
